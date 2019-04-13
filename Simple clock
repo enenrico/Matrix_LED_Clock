@@ -1,0 +1,41 @@
+#include "LedControl.h"
+#include <SPI.h>
+#include <MD_Parola.h>
+#include <MD_MAX72xx.h>
+#include <Wire.h>   
+#include<DS3231.h>                           //include the library 
+#define  MAX_DEVICES 4                       //4 MaxLed's devices (MAX7219) 
+ 
+#define HARDWARE_TYPE MD_MAX72XX::FC16_HW    //turn back the mirror writing
+
+#define  CLK_PIN   13
+#define  DATA_PIN  11
+#define  CS_PIN    10                         //define the pins
+
+DS3231 clock;
+RTCDateTime dt;
+
+MD_Parola cl = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES); //define MD_Parola as "cl" 
+void setup() 
+{
+  Serial.begin(9600);                         //start the SerialPort
+  clock.begin();                              //start the DS3231
+  clock.setDateTime(__DATE__, __TIME__);
+  cl.begin();                   //start the MD_Parola 
+} 
+
+void loop() 
+{
+  clock_time();
+}
+
+void clock_time()
+{
+  dt = clock.getDateTime();       
+  String minute = String(dt.minute);          //convert int to Sting 
+  String hour = String(dt.hour);              //convert int to Sting 
+    
+  cl.print(hour + ":" +  minute);             // print minute and hour 
+}
+ 
+
