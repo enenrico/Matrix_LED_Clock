@@ -3,39 +3,141 @@
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include <Wire.h>   
-#include<DS3231.h>                           //include the library 
-#define  MAX_DEVICES 4                       //4 MaxLed's devices (MAX7219) 
- 
-#define HARDWARE_TYPE MD_MAX72XX::FC16_HW    //turn back the mirror writing
+#include<DS3231.h>                        //include the library 
+#define  MAX_DEVICES 4                    //four MaxLed's devices (MAX7219) 
+
+#define HARDWARE_TYPE MD_MAX72XX::FC16_HW //turn back the mirror writing
 
 #define  CLK_PIN   13
 #define  DATA_PIN  11
-#define  CS_PIN    10                         //define the pins
+#define  CS_PIN    10           //define the pins
 
 DS3231 clock;
 RTCDateTime dt;
 
-MD_Parola cl = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES); //define MD_Parola as "cl" 
-void setup() 
-{
-  Serial.begin(9600);                         //start the SerialPort
-  clock.begin();                              //start the DS3231
+//LedControl cl=LedControl(12,10,11,4);
+//MD_MAX72XX cl = MD_MAX72XX(DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES
+MD_Parola cl = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES); //define MD_Parola
+char msg[] = "Parola Sprites";
+
+void setup() {
+  Serial.begin(9600);           //start the SerialPort
+  clock.begin();                //start the DS3231
   clock.setDateTime(__DATE__, __TIME__);
   cl.begin();                   //start the MD_Parola 
+  cl.displayText(msg, PA_CENTER, cl.getSpeed(), 1000, PA_SPRITE, PA_SPRITE);//displayText center
+
 } 
 
-void loop() 
-{
-  clock_time();
+void loop() {
+  //P.print(" hallo");
+  test_real_clock();
+  //test_time();
+ //clock_time();
 }
+
+void test_real_clock()
+{
+    dt = clock.getDateTime();
+
+    if(dt.minute <10)                         //four character display 
+    {    
+      String minute = String(dt.minute);
+      String hour = String(dt.hour);
+      cl.print(hour + ":" + "0" +  minute);    
+    }    
+   else if (dt.hour <10)
+    {  
+      String minute = String(dt.minute);
+      String hour = String(dt.hour);
+      cl.print("0" + hour + ":" +  minute); 
+    }
+    
+    else if (dt.minute <10 and dt.hour <10)
+    {
+      String minute = String(dt.minute);
+      String hour = String(dt.hour);
+      cl.print("0" + hour + ":" + "0" + minute);
+    }
+    
+   else
+   { 
+    String minute = String(dt.minute);
+    String hour = String(dt.hour);
+    cl.print(hour + ":" +  minute);
+   } 
+}
+void test_time()
+{
+  byte th = 1;
+  byte tm = 2;
+  String a = "12";
+  String s = ":";
+  String b = "00";
+  int t = b.toInt();
+ 
+ while (t<5)
+ { 
+  delay(1000);
+  
+  t++; 
+ String r = String(t);
+  cl.print(a + ":" + t);
+ }
+ 
+}
+
 
 void clock_time()
 {
-  dt = clock.getDateTime();       
-  String minute = String(dt.minute);          //convert int to Sting 
-  String hour = String(dt.hour);              //convert int to Sting 
-    
-  cl.print(hour + ":" +  minute);             // print minute and hour 
-}
+   String hour = "22";
+  String minute = "19";
  
+  
+  int minute_int = minute.toInt();
+  int hour_int = hour.toInt();
 
+  for(int o =0; o <24; o++)
+  {
+  
+    for (int i = 0; i<59; i++)
+    {
+      
+      if(minute_int <9)
+      { 
+          minute_int++;
+          
+          String minute = String(minute_int);
+          String hour = String(hour_int);
+          
+          cl.print(hour + ":" +"0" + minute);
+          delay(60000);
+      }
+      else
+      {
+      
+          minute_int++;
+          
+      if(minute_int==60)
+      {
+        hour_int++;
+        minute_int = 00;
+      }
+         String hour = String(hour_int);
+          String minute = String(minute_int);
+          cl.print(hour + ":" + minute);
+          delay(60000);
+       
+          
+      }
+ 
+    }
+     if(hour_int >=24)
+   {
+    hour_int = 0;
+   }
+    hour_int++;
+   
+    
+  }
+}
